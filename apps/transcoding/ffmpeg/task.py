@@ -38,13 +38,13 @@ class ffmpegTask(TranscodingTask):
                                 self._get_resources_root_dir())
         chunk = DockerJob.get_absolute_resource_path(chunk)
 
-        filename = os.path.splitext(os.path.basename(
-            self.chunks[subtask_num]))[0]
+        [filename, output_extension] = os.path.splitext(os.path.basename(
+            self.chunks[subtask_num]))
 
         output_stream_path = pathlib.Path(os.path.join(DockerJob.OUTPUT_DIR,
                                                        filename + '_TC'))
         output_stream_path = str(output_stream_path.with_suffix(
-            '.{}'.format('m3u8')))
+                                 output_extension))
 
         resolution = video_params.resolution
         resolution = [resolution[0], resolution[1]] if resolution else None
