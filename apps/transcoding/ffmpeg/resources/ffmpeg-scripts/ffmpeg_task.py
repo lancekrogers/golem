@@ -15,6 +15,10 @@ TRANSCODED_VIDEO_REGEX = re.compile(r'_(\d+)_TC\.[^.]+')
 FFCONCAT_LIST_BASENAME = "merge-input.ffconcat"
 
 
+def do_extract(input_file, output_file, selected_streams):
+    ffmpeg.extract_streams(input_file, output_file, selected_streams)
+
+
 def do_split(path_to_stream, parts):
     video_length = ffmpeg.get_video_len(path_to_stream)
 
@@ -93,6 +97,17 @@ def do_merge(chunks, outputfilename):
     ffmpeg.merge_videos(ffconcat_list_filename, outputfilename)
 
 
+def do_replace(input_file,
+               replacement_source,
+               output_file,
+               stream_type):
+
+    ffmpeg.replace_streams(
+        input_file,
+        replacement_source,
+        output_file,
+        stream_type)
+
 def compute_metric(cmd, function):
     video_path = os.path.join(RESOURCES_DIR, cmd["video"])
     reference_path = os.path.join(RESOURCES_DIR, cmd["reference"])
@@ -122,7 +137,12 @@ def compute_metrics(metrics_params):
 
 
 def run_ffmpeg(params):
-    if params['command'] == "split":
+    if params['command'] == "extract":
+        do_extract(
+            params['input_file'],
+            params['output_file'],
+            params['selected_streams'])
+    elif params['command'] == "split":
         do_split(
             params['path_to_stream'],
             params['parts'])
@@ -136,6 +156,12 @@ def run_ffmpeg(params):
         do_merge(
             params['chunks'],
             params['output_stream'])
+    elif params['command'] == "replace":
+        do_replace(
+            params['input_file'],
+            params['replacement_source'],
+            params['output_file'],
+            params['stream_type'])
     elif params['command'] == "compute-metrics":
         compute_metrics(
             params["metrics_params"])
