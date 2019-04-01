@@ -29,6 +29,38 @@ class Commands(enum.Enum):
     MERGE = ('merge', '')
 
 
+def adjust_path(path: str,
+                dirname: str = None,
+                stem: str = None,
+                extension: str = None,
+                stem_prefix: str = '',
+                stem_suffix: str = ''):
+    """
+    Splits specified path into components and reassembles it back,
+    replacing some of those components with user-provided values and adding
+    perfixes and suffixes.
+
+    Path components
+    ---------------
+
+    # /golem/split/resources/video[num=10].reencoded.mp4
+    # =======================^^^^^^^^^^^^^^^^^^^^^^^####
+    #         dirname                  stem         extension
+    """
+
+    assert extension in [None, ''] or extension.startswith('.'), \
+        "Just like in splitext(), the dot must be included in the extension"
+
+    (original_dirname, original_basename) = os.path.split(path)
+    (original_stem, original_extension) = os.path.splitext(original_basename)
+
+    new_dirname = original_dirname if dirname is None else dirname
+    new_stem = original_stem if stem is None else stem
+    new_extension = original_extension if extension is None else extension
+
+    return f"{new_dirname}{stem_prefix}{new_stem}{stem_suffix}{new_extension}"
+
+
 class StreamOperator:
     @HandleError(ValueError, common.not_valid_json)
     def split_video(self, input_stream: str, parts: int,
