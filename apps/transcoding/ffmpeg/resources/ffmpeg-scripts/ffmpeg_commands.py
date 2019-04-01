@@ -65,14 +65,21 @@ def split(input, output_list_file, segment_time):
 
 
 def split_video_command(input, output_list_file, segment_time):
+    (_, input_filename) = os.path.split(input)
+    (input_basename, input_extension) = os.path.splitext(input_filename)
+
+    (output_dir, _) = os.path.split(output_list_file)
+
     cmd = [FFMPEG_COMMAND,
            "-nostdin",
            "-i", input,
-           "-hls_time", "{}".format(segment_time),
-           "-hls_list_size", "0",
-           "-c", "copy",
-           "-mpegts_copyts", "1",
-           output_list_file
+           "-codec", "copy",
+           "-f", "segment",
+           "-reset_timestamps", "1",
+           "-segment_time", f"{segment_time}",
+           "-segment_list_type", "m3u8",
+           "-segment_list", output_list_file,
+           f"{output_dir}/{input_basename}_%d{input_extension}",
            ]
 
     return cmd, output_list_file
@@ -173,9 +180,10 @@ def merge_videos(input_files, output):
 def merge_videos_command(input_file, output):
     cmd = [FFMPEG_COMMAND,
            "-nostdin",
+           "-f", "concat",
+           "-safe", "0",
            "-i", input_file,
            "-c", "copy",
-           "-mpegts_copyts", "1",
            output
            ]
 
