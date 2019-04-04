@@ -1,4 +1,4 @@
-from ..test_config_base import DebugTestConfig
+from ....test_config_base import DebugTestConfig
 
 
 class TestConfig(DebugTestConfig):
